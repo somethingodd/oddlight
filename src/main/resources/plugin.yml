@@ -1,0 +1,15 @@
+name: OddLight
+main: info.somethingodd.bukkit.OddLight.OddLight
+version: 0.5
+website: http://bukkit.somethingodd.info
+author: petteyg359
+description: >
+             Torch expiration.
+commands:
+  oddlight:
+    usage: |
+           /<command> duration [duration]
+              - Print or set duration
+           /<command> worlds [world1 world2 ... world#]
+              - Print or set worlds
+           /<command> add|del <world>
