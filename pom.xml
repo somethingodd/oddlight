@@ -9,7 +9,7 @@
         <dependency>
             <groupId>info.somethingodd.bukkit</groupId>
             <artifactId>OddItem</artifactId>
-            <version>0.8.3</version>
+            <version>dev-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
