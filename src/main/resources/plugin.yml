@@ -13,3 +13,4 @@ commands:
            /<command> worlds [world1 world2 ... world#]
               - Print or set worlds
            /<command> add|del <world>
+load: STARTUP
