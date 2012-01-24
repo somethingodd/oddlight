@@ -13,8 +13,13 @@
  */
 package info.somethingodd.bukkit.OddLight;
 
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -25,10 +30,7 @@ public class OddLight extends JavaPlugin {
     protected String logPrefix = null;
     protected OddLightConfiguration oddLightConfiguration;
     private OddLightListener oddLightListener;
-
-    private void configure() {
-
-    }
+    private Map<Chunk, Map<Location, Integer>> lights;
 
     @Override
 	public void onDisable() {
@@ -41,6 +43,8 @@ public class OddLight extends JavaPlugin {
 
     @Override
 	public void onEnable() {
+        log = getServer().getLogger();
+        logPrefix = "["+ getDescription().getName() + "] ";
 		log.info(logPrefix + getDescription().getVersion() + " enabled");
         oddLightConfiguration = new OddLightConfiguration(this);
         oddLightConfiguration.configure();
@@ -48,9 +52,15 @@ public class OddLight extends JavaPlugin {
         getServer().getPluginManager().registerEvents(oddLightListener, this);
     }
 
-    @Override
-    public void onLoad() {
-        log = getServer().getLogger();
-        logPrefix = "[" + getDescription().getName() + "] ";
+    protected Map<Chunk, Map<Location, Integer>> getLights() {
+        if (lights == null)
+            lights = Collections.synchronizedMap(new HashMap<Chunk, Map<Location, Integer>>());
+        return lights;
+    }
+
+    protected Map<Location, Integer> getLights(Chunk chunk) {
+        if (!lights.containsKey(chunk))
+            lights.put(chunk, Collections.synchronizedMap(new HashMap<Location, Integer>()));
+        return lights.get(chunk);
     }
 }

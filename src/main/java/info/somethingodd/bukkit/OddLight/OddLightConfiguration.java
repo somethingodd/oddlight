@@ -18,13 +18,12 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -34,14 +33,13 @@ public class OddLightConfiguration {
     private Logger log;
     private String logPrefix;
     private File mainConfigFile;
-    private Set<OddLightLighter> lighters;
+    private Map<ItemStack, OddLightLighter> lighters;
     private YamlConfiguration defaults;
     protected Map<Chunk, Map<Location, Integer>> lights;
     protected boolean newChunks;
     private File dataFolder;
 
-    private int freshDuration;
-    private int relitDuration;
+    private int duration;
 
     public OddLightConfiguration(OddLight oddLight) {
         log = oddLight.log;
@@ -63,23 +61,18 @@ public class OddLightConfiguration {
         ConfigurationSection lightersSection = configuration.getConfigurationSection("lighters");
         for (String s : lightersSection.getKeys(false)) {
             ConfigurationSection lighterData = lightersSection.getConfigurationSection(s);
-            if (lighters == null) lighters = new HashSet<OddLightLighter>();
-            lighters.add(new OddLightLighter(lighterData.getBoolean("consumed"), lighterData.getDouble("duration"), OddItem.getItemStack(s)));
+            if (lighters == null) lighters = Collections.synchronizedMap(new HashMap<ItemStack, OddLightLighter>());
+            lighters.put(OddItem.getItemStack(s), new OddLightLighter(lighterData.getBoolean("consumed"), lighterData.getInt("duration")));
         }
         newChunks = configuration.getBoolean("newChunks");
     }
 
     protected int getDuration() {
-        return getDuration(false);
+        return duration;
     }
 
-    protected int getDuration(boolean relit) {
-        if (relit) return relitDuration;
-        return freshDuration;
-    }
-
-    protected Set<OddLightLighter> getLighters() {
-        return Collections.unmodifiableSet(lighters);
+    protected Map<ItemStack, OddLightLighter> getLighters() {
+        return Collections.unmodifiableMap(lighters);
     }
 
     protected void loadChunk(Chunk chunk) {
