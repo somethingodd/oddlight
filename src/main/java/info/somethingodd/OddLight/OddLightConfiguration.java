@@ -20,7 +20,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,40 +36,29 @@ import java.util.logging.Logger;
  */
 public class OddLightConfiguration {
     private Logger log;
-    private String logPrefix;
-    private File mainConfigFile;
     private Map<ItemStack, OddLightLighter> lighters;
-    private YamlConfiguration defaults;
     protected Map<Chunk, Map<Location, Integer>> lights;
-    protected boolean newChunks;
-    private File dataFolder;
+    private boolean newChunks;
+    private OddLight oddLight;
 
     private int duration;
 
     public OddLightConfiguration(OddLight oddLight) {
-        log = oddLight.log;
-        logPrefix = oddLight.logPrefix;
-        dataFolder = oddLight.getDataFolder();
+        this.oddLight = oddLight;
         mainConfigFile = new File(dataFolder + File.separator + "OddLight.yml");
         makeDefaults();
     }
 
     protected void configure() {
-        YamlConfiguration configuration = new YamlConfiguration();
+        String[] filenames = {"config.yml"};
         try {
-            configuration.load(mainConfigFile);
+            initialConfig(filenames);
         } catch (Exception e) {
-            log.severe(logPrefix + "Error opening configuration: " + e.getMessage());
+            oddLight.log.warning("Exception writing initial configuration files: " + e.getMessage());
             e.printStackTrace();
         }
-        configuration.setDefaults(defaults);
-        ConfigurationSection lightersSection = configuration.getConfigurationSection("lighters");
-        for (String s : lightersSection.getKeys(false)) {
-            ConfigurationSection lighterData = lightersSection.getConfigurationSection(s);
-            if (lighters == null) lighters = Collections.synchronizedMap(new HashMap<ItemStack, OddLightLighter>());
-            lighters.put(OddItem.getItemStack(s), new OddLightLighter(lighterData.getBoolean("consumed"), lighterData.getInt("duration")));
-        }
-        newChunks = configuration.getBoolean("newChunks");
+        YamlConfiguration yamlConfiguration = (YamlConfiguration) oddLight.getConfig();
+        newChunks = yamlConfiguration.getBoolean("newChunks");
     }
 
     protected int getDuration() {
@@ -79,7 +73,7 @@ public class OddLightConfiguration {
         if (lights == null) {
             lights = Collections.synchronizedMap(new HashMap<Chunk, Map<Location, Integer>>());
         }
-        File chunkFile = new File(dataFolder + File.separator + chunk.getWorld().getUID() + File.separator + String.valueOf(chunk.getX()) + "-" + String.valueOf(chunk.getZ()) + ".yml");
+        File chunkFile = new File(oddLight.getDataFolder(), getChunkFile(chunk));
         YamlConfiguration chunkConfiguration = new YamlConfiguration();
         try {
             chunkConfiguration.load(chunkFile);
@@ -94,28 +88,46 @@ public class OddLightConfiguration {
     }
 
     protected void saveChunk(Chunk chunk) {
-        File chunkFile = new File(dataFolder + File.separator + chunk.getWorld().getUID() + File.separator + String.valueOf(chunk.getX()) + "-" + String.valueOf(chunk.getZ()) + ".yml");
-        YamlConfiguration chunkConfiguration = new YamlConfiguration();
-        for (Map.Entry<Location, Integer> e : lights.get(chunk).entrySet()) {
-            chunkConfiguration.set(e.getKey().getBlockX() + " " + e.getKey().getBlockY() + " " + e.getKey().getBlockZ(), e.getValue());
-        }
-        try {
-            chunkConfiguration.save(chunkFile);
-        } catch (Exception e) {
-        }
-        lights.remove(chunk);
+
     }
 
-    private void makeDefaults() {
-        Map<String, Object> coal = new HashMap<String, Object>();
-        coal.put("consumed", "true");
-        coal.put("duration", "60m");
-        Map<String, Object> flintandsteel = new HashMap<String, Object>();
-        flintandsteel.put("consumed", "false");
-        flintandsteel.put("duration", "30m");
-        Map<String, Object> lightersMap = new HashMap<String, Object>();
-        lightersMap.put("coal", coal);
-        lightersMap.put("flintandsteel", flintandsteel);
-        defaults.createSection("lighters", lightersMap);
+    private String getChunkFile(Chunk chunk) {
+        StringBuilder chunkString = new StringBuilder();
+        chunkString.append(chunk.getWorld().getUID()).append(File.separator);
+        chunkString.append(chunk.getX()).append("-");
+        chunkString.append(chunk.getZ()).append(".yml");
+        return chunkString.toString();
+    }
+
+    private void initialConfig(String[] filenames) throws IOException {
+        for (String filename : filenames) {
+            File file = new File(oddLight.getDataFolder(), filename);
+            if (!file.exists()) {
+                BufferedReader src = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/" + filename)));
+                BufferedWriter dst = new BufferedWriter(new FileWriter(file));
+                try {
+                    file.mkdirs();
+                    file.createNewFile();
+                    src = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/" + filename)));
+                    dst = new BufferedWriter(new FileWriter(file));
+                    String line = src.readLine();
+                    while (line != null) {
+                        dst.write(line + "\n");
+                        line = src.readLine();
+                    }
+                    src.close();
+                    dst.close();
+                    oddLight.log.info("Wrote default " + filename);
+                } catch (IOException e) {
+                    oddLight.log.warning("Error writing default " + filename);
+                } finally {
+                    try {
+                        src.close();
+                        dst.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        }
     }
 }

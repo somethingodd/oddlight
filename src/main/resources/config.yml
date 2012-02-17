@@ -1,0 +1,7 @@
+lighters:
+    coal:
+        consumed: true
+        duration: 60m
+    flintandsteel:
+        consumed: false
+        duration: 15m
