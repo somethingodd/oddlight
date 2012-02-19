@@ -13,10 +13,8 @@
  */
 package info.somethingodd.OddLight;
 
-import info.somethingodd.OddItem.OddItem;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -29,13 +27,11 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * @author Gordon Pettey (petteyg359@gmail.com)
  */
 public class OddLightConfiguration {
-    private Logger log;
     private Map<ItemStack, OddLightLighter> lighters;
     protected Map<Chunk, Map<Location, Integer>> lights;
     private boolean newChunks;
@@ -45,8 +41,6 @@ public class OddLightConfiguration {
 
     public OddLightConfiguration(OddLight oddLight) {
         this.oddLight = oddLight;
-        mainConfigFile = new File(dataFolder + File.separator + "OddLight.yml");
-        makeDefaults();
     }
 
     protected void configure() {
@@ -103,10 +97,10 @@ public class OddLightConfiguration {
         for (String filename : filenames) {
             File file = new File(oddLight.getDataFolder(), filename);
             if (!file.exists()) {
-                BufferedReader src = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/" + filename)));
-                BufferedWriter dst = new BufferedWriter(new FileWriter(file));
+                BufferedReader src = null;
+                BufferedWriter dst = null;
                 try {
-                    file.mkdirs();
+                    file.getParentFile().mkdirs();
                     file.createNewFile();
                     src = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/" + filename)));
                     dst = new BufferedWriter(new FileWriter(file));
@@ -124,7 +118,7 @@ public class OddLightConfiguration {
                     try {
                         src.close();
                         dst.close();
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                     }
                 }
             }
