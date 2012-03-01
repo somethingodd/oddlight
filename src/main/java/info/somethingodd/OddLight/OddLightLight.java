@@ -13,28 +13,42 @@
  */
 package info.somethingodd.OddLight;
 
+import info.somethingodd.OddItem.OddItem;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Gordon Pettey (petteyg359@gmail.com)
  */
 public class OddLightLight implements ConfigurationSerializable {
     private Location location;
-    private int typeId;
+    private ItemStack type;
+    private ItemStack replacement;
     private int duration;
+
+    public OddLightLight(Map<String, Object> serialized) {
+
+    }
 
     @Override
     public Map<String, Object> serialize() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(location.getWorld()).append(",");
-        sb.append(location.getBlockX()).append(",");
-        sb.append(location.getBlockY()).append(",");
-        sb.append(location.getBlockZ());
+        Map<String, Object> serialized = new TreeMap<String, Object>(OddItem.ALPHANUM_COMPARATOR);
+        serialized.put("location", location);
+        serialized.put("type", type.serialize());
+        serialized.put("replacement", replacement.serialize());
+        serialized.put("duration", duration);
+        return serialized;
+    }
 
-        sb.append(typeId).append(",").append(duration);
-        return null;
+    public static OddLightLight deserialize(Map<String, Object> serialized) {
+        return new OddLightLight(serialized);
+    }
+
+    public static OddLightLight valueOf(Map<String, Object> serialized) {
+        return new OddLightLight(serialized);
     }
 }

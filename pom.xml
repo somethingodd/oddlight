@@ -6,6 +6,30 @@
     <name>OddLight</name>
     <url>http://somethingodd.info/OddLight</url>
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>config.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>COPYING</include>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -77,12 +101,12 @@
         <dependency>
             <groupId>info.somethingodd</groupId>
             <artifactId>OddItem</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <version>0.9-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.1-R4</version>
+            <version>1.1-R5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

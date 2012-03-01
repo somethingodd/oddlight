@@ -13,36 +13,51 @@
  */
 package info.somethingodd.OddLight;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+
+import java.util.Map;
+
 /**
  * @author Gordon Pettey (petteyg359@gmail.com)
  */
-public class OddLightLighter {
-    private boolean _consumed;
-    private int _duration;
+public class OddLightLighter implements ConfigurationSerializable {
+    private boolean consumed;
+    private int duration;
 
-    public OddLightLighter(boolean consumed, int duration) {
-        _consumed = consumed;
-        _duration = duration;
+    public OddLightLighter(Map<String, Object> serialized) {
+
     }
 
-    public boolean consumed() {
-        return _consumed;
+    public boolean getConsumed() {
+        return consumed;
     }
 
-    public int duration() {
-        return _duration;
+    public int getDuration() {
+        return duration;
     }
 
     public int hashCode() {
         int hash = 37;
-        if (consumed()) hash++;
-        hash += duration();
+        if (consumed) hash++;
+        hash += duration;
         return hash;
     }
 
     public boolean equals(OddLightLighter other) {
-        if (other.consumed() != consumed()) return false;
-        return (other.duration() != duration());
+        if (other.getConsumed() != consumed) return false;
+        return (other.getDuration() != duration);
     }
 
+    @Override
+    public Map<String, Object> serialize() {
+        return null;
+    }
+
+    public static OddLightLighter deserialize(Map<String, Object> serialized) {
+        return new OddLightLighter(serialized);
+    }
+
+    public static OddLightLighter valueOf(Map<String, Object> serialized) {
+        return new OddLightLighter(serialized);
+    }
 }
