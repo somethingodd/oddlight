@@ -13,54 +13,25 @@
  */
 package info.somethingodd.OddLight;
 
-import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * @author Gordon Pettey (petteyg359@gmail.com)
  */
 public class OddLight extends JavaPlugin {
-    protected Logger log = null;
-    protected String logPrefix = null;
-    protected OddLightConfiguration oddLightConfiguration;
-    private OddLightListener oddLightListener;
-    private Map<Chunk, Map<Location, Integer>> lights;
+    protected Configuration configuration;
+    private Listener listener;
 
     @Override
 	public void onDisable() {
-        log.info(logPrefix + "disabled");
-        log = null;
-        logPrefix = null;
-        oddLightConfiguration = null;
-        oddLightListener = null;
+        configuration = null;
+        listener = null;
     }
 
     @Override
 	public void onEnable() {
-        log = getServer().getLogger();
-        logPrefix = "["+ getDescription().getName() + "] ";
-		log.info(logPrefix + getDescription().getVersion() + " enabled");
-        oddLightConfiguration = new OddLightConfiguration(this);
-        oddLightConfiguration.configure();
-        oddLightListener = new OddLightListener(this);
-        getServer().getPluginManager().registerEvents(oddLightListener, this);
-    }
-
-    protected Map<Chunk, Map<Location, Integer>> getLights() {
-        if (lights == null)
-            lights = Collections.synchronizedMap(new HashMap<Chunk, Map<Location, Integer>>());
-        return lights;
-    }
-
-    protected Map<Location, Integer> getLights(Chunk chunk) {
-        if (!lights.containsKey(chunk))
-            lights.put(chunk, Collections.synchronizedMap(new HashMap<Location, Integer>()));
-        return lights.get(chunk);
+        Configuration.configure();
+        listener = new Listener(this);
+        getServer().getPluginManager().registerEvents(listener, this);
     }
 }
