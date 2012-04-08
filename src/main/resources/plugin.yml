@@ -1,7 +1,7 @@
 name: OddLight
 main: info.somethingodd.OddLight.OddLight
 version: ${pom.version}
-website: http://bukkit.somethingodd.info
+website: ${pom.url}
 author: petteyg359
 load: STARTUP
 description: >
